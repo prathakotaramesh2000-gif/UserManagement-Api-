@@ -1,0 +1,52 @@
+
+[
+    {
+        "id": 1,
+        "name": "Ramesh Kumar",
+        "username": "ramesh123",
+        "email": "ramesh@gmail.com",
+        "phone": "9876543210",
+        "city": "Vizianagaram",
+        "age": 25,
+        "gender": "Male",
+        "occupation": "Software Developer",
+        "company": "Wipro Technologies"
+    },
+    {
+        "id": 2,
+        "name": "Suresh Kumar",
+        "username": "suresh456",
+        "email": "suresh@gmail.com",
+        "phone": "9876543211",
+        "city": "Visakhapatnam",
+        "age": 27,
+        "gender": "Male",
+        "occupation": "Frontend Developer",
+        "company": "Google Solutions"
+    },
+    {
+        "id": 3,
+        "name": "Priya Sharma",
+        "username": "priya789",
+        "email": "priya@gmail.com",
+        "phone": "9876543212",
+        "city": "Hyderabad",
+        "age": 24,
+        "gender": "Female",
+        "occupation": "UI Developer",
+        "company": "Microsoft Solutions"
+    },
+    {
+        "id": 4,
+        "name": "Anjali Reddy",
+        "username": "anjali123",
+        "email": "anjali@gmail.com",
+        "phone": "9876543213",
+        "city": "Bangalore",
+        "age": 26,
+        "gender": "Female",
+        "occupation": "Web Developer",
+        "company": "Digital Solutions"
+    }
+]
+

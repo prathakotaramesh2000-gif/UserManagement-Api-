@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>User Management</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <h1>User Management</h1>
+
+
+    <!-- =========================
+         ADD USER FORM
+    ========================== -->
+
+    <div class="form-card">
+
+        <h2 id="formTitle">Add New User</h2>
+
+        <form id="userForm">
+
+            <input
+                type="text"
+                id="name"
+                placeholder="Enter full name"
+                required
+            >
+
+            <input
+                type="text"
+                id="username"
+                placeholder="Enter username"
+                required
+            >
+
+            <input
+                type="email"
+                id="email"
+                placeholder="Enter email"
+                required
+            >
+
+            <input
+                type="text"
+                id="phone"
+                placeholder="Enter phone number"
+                required
+            >
+
+            <input
+                type="text"
+                id="city"
+                placeholder="Enter city"
+                required
+            >
+
+            <input
+                type="number"
+                id="age"
+                placeholder="Enter age"
+                required
+            >
+
+            <select id="gender" required>
+
+                <option value="">
+                    Select Gender
+                </option>
+
+                <option value="Male">
+                    Male
+                </option>
+
+                <option value="Female">
+                    Female
+                </option>
+
+                <option value="Other">
+                    Other
+                </option>
+
+            </select>
+
+
+            <input
+                type="text"
+                id="occupation"
+                placeholder="Enter occupation"
+                required
+            >
+
+
+            <input
+                type="text"
+                id="company"
+                placeholder="Enter company"
+                required
+            >
+
+
+            <button type="submit"
+                    id="submitButton">
+
+                Add User
+
+            </button>
+
+
+            <button type="button"
+                    id="cancelButton"
+                    onclick="cancelEdit()"
+                    style="display:none;">
+
+                Cancel Edit
+
+            </button>
+
+        </form>
+
+    </div>
+
+
+
+    <!-- =========================
+         SEARCH
+    ========================== -->
+
+    <input
+        type="text"
+        id="search"
+        placeholder="Search users..."
+    >
+
+
+
+    <!-- =========================
+         USER LIST
+    ========================== -->
+
+    <div id="users"
+         class="users-container">
+
+        Loading users...
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =========================
+     VIEW USER MODAL
+========================== -->
+
+<div id="viewModal"
+     class="modal">
+
+    <div class="modal-content">
+
+        <span class="close"
+              onclick="closeModal()">
+
+            &times;
+
+        </span>
+
+        <h2>User Details</h2>
+
+        <div id="userDetails"></div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+
+/* =====================================================
+   GLOBAL VARIABLES
+===================================================== */
+
+let allUsers = [];
+
+let editingUserId = null;
+
+
+
+/* =====================================================
+   FETCH USERS FROM users.json
+===================================================== */
+
+fetch("users.json")
+
+    .then(response => {
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to load users.json"
+            );
+
+        }
+
+        return response.json();
+
+    })
+
+    .then(data => {
+
+
+        /*
+        Get users already saved in localStorage
+        */
+
+        const savedUsers =
+            JSON.parse(
+                localStorage.getItem("users")
+            ) || [];
+
+
+        /*
+        Combine JSON users with
+        newly added users
+        */
+
+        allUsers = [
+            ...data,
+            ...savedUsers
+        ];
+
+
+        displayUsers(allUsers);
+
+    })
+
+    .catch(error => {
+
+        document.getElementById("users").innerHTML =
+            "<p>Unable to load users.</p>";
+
+        console.log(error);
+
+    });
+
+
+
+/* =====================================================
+   DISPLAY USERS
+===================================================== */
+
+function displayUsers(users) {
+
+
+    const usersContainer =
+        document.getElementById("users");
+
+
+    usersContainer.innerHTML = "";
+
+
+    if (users.length === 0) {
+
+        usersContainer.innerHTML =
+            "<p>No users found.</p>";
+
+        return;
+
+    }
+
+
+
+    users.forEach(user => {
+
+
+        const card =
+            document.createElement("div");
+
+
+        card.className = "user-card";
+
+
+
+        card.innerHTML = `
+
+            <h2>${user.name}</h2>
+
+            <p>
+                <strong>Username:</strong>
+                ${user.username}
+            </p>
+
+            <p>
+                <strong>Email:</strong>
+                ${user.email}
+            </p>
+
+            <p>
+                <strong>Phone:</strong>
+                ${user.phone}
+            </p>
+
+            <p>
+                <strong>City:</strong>
+                ${user.city}
+            </p>
+
+            <p>
+                <strong>Age:</strong>
+                ${user.age}
+            </p>
+
+            <p>
+                <strong>Gender:</strong>
+                ${user.gender}
+            </p>
+
+            <p>
+                <strong>Occupation:</strong>
+                ${user.occupation}
+            </p>
+
+            <p>
+                <strong>Company:</strong>
+                ${user.company}
+            </p>
+
+
+            <div class="button-group">
+
+
+                <!-- VIEW -->
+
+                <button
+                    class="view-button"
+                    onclick="viewUser(${user.id})">
+
+                    View
+
+                </button>
+
+
+                <!-- EDIT -->
+
+                <button
+                    class="edit-button"
+                    onclick="editUser(${user.id})">
+
+                    Edit
+
+                </button>
+
+
+                <!-- DELETE -->
+
+                <button
+                    class="delete-button"
+                    onclick="deleteUser(${user.id})">
+
+                    Delete
+
+                </button>
+
+
+            </div>
+
+        `;
+
+
+        usersContainer.appendChild(card);
+
+    });
+
+}
+
+
+
+/* =====================================================
+   ADD / EDIT USER
+===================================================== */
+
+document.getElementById("userForm")
+
+    .addEventListener(
+        "submit",
+        function(event) {
+
+
+            /*
+            Prevent page refresh
+            */
+
+            event.preventDefault();
+
+
+
+            /* =========================================
+               GET FORM VALUES
+            ========================================= */
+
+            const name =
+                document.getElementById("name").value;
+
+            const username =
+                document.getElementById("username").value;
+
+            const email =
+                document.getElementById("email").value;
+
+            const phone =
+                document.getElementById("phone").value;
+
+            const city =
+                document.getElementById("city").value;
+
+            const age =
+                document.getElementById("age").value;
+
+            const gender =
+                document.getElementById("gender").value;
+
+            const occupation =
+                document.getElementById("occupation").value;
+
+            const company =
+                document.getElementById("company").value;
+
+
+
+            /* =========================================
+               EDIT EXISTING USER
+            ========================================= */
+
+            if (editingUserId !== null) {
+
+
+                const userIndex =
+                    allUsers.findIndex(
+                        user =>
+                            user.id === editingUserId
+                    );
+
+
+                if (userIndex !== -1) {
+
+
+                    allUsers[userIndex] = {
+
+                        id: editingUserId,
+
+                        name: name,
+
+                        username: username,
+
+                        email: email,
+
+                        phone: phone,
+
+                        city: city,
+
+                        age: age,
+
+                        gender: gender,
+
+                        occupation: occupation,
+
+                        company: company
+
+                    };
+
+
+
+                    saveUsers();
+
+
+                    displayUsers(allUsers);
+
+
+                    cancelEdit();
+
+
+                    alert(
+                        "User updated successfully!"
+                    );
+
+                }
+
+
+                return;
+
+            }
+
+
+
+            /* =========================================
+               ADD NEW USER
+            ========================================= */
+
+            const newUser = {
+
+                id: Date.now(),
+
+                name: name,
+
+                username: username,
+
+                email: email,
+
+                phone: phone,
+
+                city: city,
+
+                age: age,
+
+                gender: gender,
+
+                occupation: occupation,
+
+                company: company
+
+            };
+
+
+
+            /*
+            Add user to array
+            */
+
+            allUsers.push(newUser);
+
+
+
+            /*
+            Save user in localStorage
+            */
+
+            saveUsers();
+
+
+
+            /*
+            Display updated users
+            */
+
+            displayUsers(allUsers);
+
+
+
+            /*
+            Clear form
+            */
+
+            document
+                .getElementById("userForm")
+                .reset();
+
+
+
+            alert(
+                "User added successfully!"
+            );
+
+        });
+
+
+
+/* =====================================================
+   SAVE USERS
+===================================================== */
+
+function saveUsers() {
+
+
+    /*
+    Only store users that were added/edited
+    through this application.
+
+    JSON users are not rewritten.
+    */
+
+    const jsonIds = [
+        1,
+        2,
+        3,
+        4
+    ];
+
+
+    const changedUsers =
+        allUsers.filter(
+            user =>
+                !jsonIds.includes(user.id)
+        );
+
+
+    localStorage.setItem(
+        "users",
+        JSON.stringify(changedUsers)
+    );
+
+}
+
+
+
+/* =====================================================
+   EDIT USER
+===================================================== */
+
+function editUser(id) {
+
+
+    const user =
+        allUsers.find(
+            user =>
+                user.id === id
+        );
+
+
+    if (!user) {
+
+        return;
+
+    }
+
+
+
+    /*
+    Put user information
+    into the form
+    */
+
+    document.getElementById("name").value =
+        user.name;
+
+    document.getElementById("username").value =
+        user.username;
+
+    document.getElementById("email").value =
+        user.email;
+
+    document.getElementById("phone").value =
+        user.phone;
+
+    document.getElementById("city").value =
+        user.city;
+
+    document.getElementById("age").value =
+        user.age;
+
+    document.getElementById("gender").value =
+        user.gender;
+
+    document.getElementById("occupation").value =
+        user.occupation;
+
+    document.getElementById("company").value =
+        user.company;
+
+
+
+    /*
+    Store ID of user being edited
+    */
+
+    editingUserId = id;
+
+
+
+    /*
+    Change form title
+    */
+
+    document.getElementById("formTitle")
+        .textContent =
+        "Edit User";
+
+
+
+    /*
+    Change button text
+    */
+
+    document.getElementById("submitButton")
+        .textContent =
+        "Update User";
+
+
+
+    /*
+    Show cancel button
+    */
+
+    document.getElementById("cancelButton")
+        .style.display =
+        "block";
+
+
+
+    /*
+    Scroll to form
+    */
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+}
+
+
+
+/* =====================================================
+   CANCEL EDIT
+===================================================== */
+
+function cancelEdit() {
+
+
+    editingUserId = null;
+
+
+    document
+        .getElementById("userForm")
+        .reset();
+
+
+    document.getElementById("formTitle")
+        .textContent =
+        "Add New User";
+
+
+    document.getElementById("submitButton")
+        .textContent =
+        "Add User";
+
+
+    document.getElementById("cancelButton")
+        .style.display =
+        "none";
+
+}
+
+
+
+/* =====================================================
+   DELETE USER
+===================================================== */
+
+function deleteUser(id) {
+
+
+    const user =
+        allUsers.find(
+            user =>
+                user.id === id
+        );
+
+
+    if (!user) {
+
+        return;
+
+    }
+
+
+
+    /*
+    Confirmation
+    */
+
+    const confirmation =
+        confirm(
+            `Are you sure you want to delete ${user.name}?`
+        );
+
+
+    if (!confirmation) {
+
+        return;
+
+    }
+
+
+
+    /*
+    Remove user
+    */
+
+    allUsers =
+        allUsers.filter(
+            user =>
+                user.id !== id
+        );
+
+
+
+    /*
+    Save changes
+    */
+
+    saveUsers();
+
+
+
+    /*
+    Display updated list
+    */
+
+    displayUsers(allUsers);
+
+
+
+    alert(
+        "User deleted successfully!"
+    );
+
+}
+
+
+
+/* =====================================================
+   VIEW USER
+===================================================== */
+
+function viewUser(id) {
+
+
+    const user =
+        allUsers.find(
+            user =>
+                user.id === id
+        );
+
+
+    if (!user) {
+
+        return;
+
+    }
+
+
+
+    /*
+    Create user details
+    */
+
+    const details =
+        document.getElementById(
+            "userDetails"
+        );
+
+
+    details.innerHTML = `
+
+        <p>
+            <strong>ID:</strong>
+            ${user.id}
+        </p>
+
+        <p>
+            <strong>Name:</strong>
+            ${user.name}
+        </p>
+
+        <p>
+            <strong>Username:</strong>
+            ${user.username}
+        </p>
+
+        <p>
+            <strong>Email:</strong>
+            ${user.email}
+        </p>
+
+        <p>
+            <strong>Phone:</strong>
+            ${user.phone}
+        </p>
+
+        <p>
+            <strong>City:</strong>
+            ${user.city}
+        </p>
+
+        <p>
+            <strong>Age:</strong>
+            ${user.age}
+        </p>
+
+        <p>
+            <strong>Gender:</strong>
+            ${user.gender}
+        </p>
+
+        <p>
+            <strong>Occupation:</strong>
+            ${user.occupation}
+        </p>
+
+        <p>
+            <strong>Company:</strong>
+            ${user.company}
+        </p>
+
+    `;
+
+
+
+    /*
+    Show modal
+    */
+
+    document.getElementById("viewModal")
+        .style.display =
+        "flex";
+
+}
+
+
+
+/* =====================================================
+   CLOSE VIEW MODAL
+===================================================== */
+
+function closeModal() {
+
+    document.getElementById("viewModal")
+        .style.display =
+        "none";
+
+}
+
+
+
+/* =====================================================
+   CLOSE MODAL WHEN CLICKING OUTSIDE
+===================================================== */
+
+window.addEventListener(
+    "click",
+    function(event) {
+
+
+        const modal =
+            document.getElementById(
+                "viewModal"
+            );
+
+
+        if (event.target === modal) {
+
+            modal.style.display =
+                "none";
+
+        }
+
+    }
+);
+
+
+
+/* =====================================================
+   SEARCH USERS
+===================================================== */
+
+document.getElementById("search")
+
+    .addEventListener(
+        "input",
+        function() {
+
+
+            const searchText =
+                this.value
+                    .toLowerCase()
+                    .trim();
+
+
+
+            const filteredUsers =
+                allUsers.filter(
+                    user =>
+
+                        user.name
+                            .toLowerCase()
+                            .includes(searchText)
+
+                );
+
+
+
+            displayUsers(filteredUsers);
+
+        }
+    );
+
+
+</script>
+
+</body>
+
+</html>
